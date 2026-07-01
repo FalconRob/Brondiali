@@ -104,7 +104,7 @@
 
         .round-column {
             display: table-cell;
-            vertical-align: middle;
+            vertical-align: top; /* Cambiato da middle a top per controllare i flussi in modo deterministico */
             height: 100%;
         }
 
@@ -118,22 +118,11 @@
             margin: 0 10px 20px 10px;
         }
 
-        /* Altezze e margini calcolati per la perfetta centratura ad albero */
+        /* Struttura a blocchi ad altezza fissa per i match */
         .matchup-wrapper {
             display: block;
             padding: 0 10px;
         }
-
-        /* Sedicesimi */
-        .r-0 .matchup-wrapper { height: 95px; margin: 5px 0; }
-        /* Ottavi: centra perfettamente 2 partite dei sedicesimi */
-        .r-1 .matchup-wrapper { height: 190px; padding-top: 45px; }
-        /* Quarti: centra perfettamente 2 partite degli ottavi */
-        .r-2 .matchup-wrapper { height: 380px; padding-top: 140px; }
-        /* Semifinali: centra perfettamente 2 partite dei quarti */
-        .r-3 .matchup-wrapper { height: 760px; padding-top: 330px; }
-        /* Finale: centra perfettamente le semifinali */
-        .r-4 .matchup-wrapper { height: 1520px; padding-top: 710px; }
 
         .matchup-box {
             background: #f8fafc;
@@ -141,7 +130,29 @@
             border-radius: 6px;
             padding: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            height: 85px; /* Altezza fissa del box interna uguale per tutti i turni */
         }
+
+        /* STRUTTURA AD ALBERO GEOMETRICO: ALTEZZE DEI BLOCCHI E MARGINI DI CENTRATURA */
+        
+        /* Sedicesimi: i box sono alti 85px + 20px di margine totale = 105px di spazio occupato ciascuno */
+        .r-0 .matchup-wrapper { height: 105px; margin: 0; padding-top: 10px; }
+
+        /* Ottavi: deve centrare due blocchi da 105px (totale 210px). 
+           Il box sta al centro se l'altezza del contenitore è 210px e il primo blocco ha un padding-top di 62.5px */
+        .r-1 .matchup-wrapper { height: 210px; padding-top: 62.5px; }
+
+        /* Quarti: deve centrare due blocchi da 210px (totale 420px).
+           Il box sta al centro con altezza contenitore 420px e padding-top di 167.5px */
+        .r-2 .matchup-wrapper { height: 420px; padding-top: 167.5px; }
+
+        /* Semifinali: deve centrare due blocchi da 420px (totale 840px).
+           Il box sta al centro con altezza contenitore 840px e padding-top di 377.5px */
+        .r-3 .matchup-wrapper { height: 840px; padding-top: 377.5px; }
+
+        /* Finale: deve centrare due blocchi da 840px (totale 1680px).
+           Il box sta al centro con altezza contenitore 1680px e padding-top di 797.5px */
+        .r-4 .matchup-wrapper { height: 1680px; padding-top: 797.5px; }
 
         .team-row {
             display: block;
