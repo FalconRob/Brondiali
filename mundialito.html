@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Pronostici Mondiali</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --border-color: #ccd0d5;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            margin-top: 0;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+        .main-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Classifica */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+
+        /* Bracket Layout */
+        .bracket {
+            display: flex;
+            gap: 40px;
+            padding: 20px 0;
+            min-width: 1200px;
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex-gap: 20px;
+            flex: 1;
+        }
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .matchup {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .team-row:hover {
+            background-color: #e2e6ea;
+        }
+        .team-row.winner {
+            background-color: #d4edda !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .team-row.eliminated {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .predictions-indicator {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 4px;
+            border-top: 1px dashed #dee2e6;
+            padding-top: 4px;
+        }
+
+        /* Modale / Pannello inserimento */
+        .admin-section {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #333;
+        }
+        select {
+            width: 100%;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 Pronostici Mondiali tra Amici 🏆</h1>
+
+    <div class="container">
+        <!-- Pannello Principale: Alberatura del Torneo -->
+        <div class="main-panel">
+            <h2>Tabellone Fasi Finali</h2>
+            <div class="bracket" id="bracket"></div>
+        </div>
+
+        <!-- Pannello Laterale: Classifica e Gestione Turni -->
+        <div class="side-panel">
+            <!-- Classifica Live -->
+            <div class="card">
+                <h2>Classifica Generale</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Giocatore</th>
+                            <th>Punti</th>
+                            <th>Lungi. (Potenziale)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+
+            <!-- Preferite Correnti -->
+            <div class="card">
+                <h3>Favorite Elette (Turno Corrente)</h3>
+                <div id="current-favorites"></div>
+            </div>
+
+            <!-- Pannello di Amministrazione per l'avanzamento -->
+            <div class="card admin-section" id="admin-panel">
+                <h3>Gestione Pronostici Turno Successivo</h3>
+                <div id="next-round-form" class="hidden">
+                    <p style="font-size: 13px; color: #666;">Tutte le scommesse per il prossimo turno devono essere inserite prima di sbloccare il turno.</p>
+                    <div id="form-fields"></div>
+                    <button class="btn" onclick="saveNextRoundPredictions()">Salva e Passa al Prossimo Turno</button>
+                </div>
+                <div id="round-status-msg">
+                    Determina tutti i vincitori del turno corrente cliccando direttamente sulle squadre nel tabellone per poter configurare il turno successivo.
+                </div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-danger" onclick="resetAll()">Reset Totale Cache</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PLAYERS = ['Roberto', 'Alessio', 'Emiliano', 'Fabio'];
+        const ROUND_NAMES = ['Sedicesimi', 'Ottavi', 'Quarti', 'Semifinali', 'Finale', 'Campione'];
+        const LUNGIMIRANZA_BONUS = [10, 7, 5, 3, 0]; // Associati a Sedicesimi, Ottavi, Quarti, Semifinali, Finale
+
+        // Struttura iniziale dei sedicesimi come definita dall'utente
+        const INITIAL_MATCHUPS = [
+            { t1: 'Germania', t2: 'Paraguay' },
+            { t1: 'Francia', t2: 'Svezia' },
+            { t1: 'SudAfrica', t2: 'Canada' },
+            { t1: 'Olanda', t2: 'Marocco' },
+            { t1: 'Portogallo', t2: 'Croazia' },
+            { t1: 'Spagna', t2: 'Austria' },
+            { t1: 'USA', t2: 'Bosnia-Erzegovina' },
+            { t1: 'Belgio', t2: 'Senegal' },
+            { t1: 'Brasile', t2: 'Giappone' },
+            { t1: 'Costa d\'Avorio', t2: 'Norvegia' },
+            { t1: 'Messico', t2: 'Ecurador' }, // Corretto refuso 'Ecurador' in Ecuador internamente per coerenza
+            { t1: 'Inghilterra', t2: 'Repubblica Democratica del Congo' },
+            { t1: 'Argentina', t2: 'Capo Verde' },
+            { t1: 'Australia', t2: 'Egitto' },
+            { t1: 'Svizzera', t2: 'Algeria' },
+            { t1: 'Colombia', t2: 'Ghana' }
+        ];
+
+        // Sostituito "Ecurador" con Ecuador se necessario
+        INITIAL_MATCHUPS[10].t2 = 'Ecuador';
+
+        const INITIAL_PREDICTIONS = {
+            0: [ // Turno 0: Sedicesimi
+                { Roberto: 'Germania', Alessio: 'Paraguay', Emiliano: 'Germania', Fabio: 'Germania' },
+                { Roberto: 'Francia', Alessio: 'Francia', Emiliano: 'Francia', Fabio: 'Francia' },
+                { Roberto: 'Canada', Alessio: 'Canada', Emiliano: 'Canada', Fabio: 'Canada' },
+                { Roberto: 'Olanda', Alessio: 'Marocco', Emiliano: 'Marocco', Fabio: 'Olanda' },
+                { Roberto: 'Croazia', Alessio: 'Portogallo', Emiliano: 'Croazia', Fabio: 'Portogallo' },
+                { Roberto: 'Spagna', Alessio: 'Spagna', Emiliano: 'Spagna', Fabio: 'Spagna' },
+                { Roberto: 'Bosnia-Erzegovina', Alessio: 'Bosnia-Erzegovina', Emiliano: 'USA', Fabio: 'USA' },
+                { Roberto: 'Senegal', Alessio: 'Belgio', Emiliano: 'Belgio', Fabio: 'Belgio' },
+                { Roberto: 'Brasile', Alessio: 'Brasile', Emiliano: 'Brasile', Fabio: 'Brasile' },
+                { Roberto: 'Norvegia', Alessio: 'Norvegia', Emiliano: 'Costa d\'Avorio', Fabio: 'Norvegia' },
+                { Roberto: 'Messico', Alessio: 'Messico', Emiliano: 'Messico', Fabio: 'Ecuador' },
+                { Roberto: 'Inghilterra', Alessio: 'Repubblica Democratica del Congo', Emiliano: 'Inghilterra', Fabio: 'Inghilterra' },
+                { Roberto: 'Argentina', Alessio: 'Capo Verde', Emiliano: 'Capo Verde', Fabio: 'Argentina' },
+                { Roberto: 'Egitto', Alessio: 'Egitto', Emiliano: 'Egitto', Fabio: 'Australia' },
+                { Roberto: 'Svizzera', Alessio: 'Svizzera', Emiliano: 'Algeria', Fabio: 'Svizzera' },
+                { Roberto: 'Ghana', Alessio: 'Colombia', Emiliano: 'Ghana', Fabio: 'Colombia' }
+            ]
+        };
+
+        const INITIAL_FAVORITES = {
+            0: { Roberto: 'Spagna', Alessio: 'Marocco', Emiliano: 'Francia', Fabio: 'Argentina' }
+        };
+
+        // Stato dell'applicazione globale
+        let state = {
+            currentRoundIndex: 0, // 0=Sedicesimi, 1=Ottavi, 2=Quarti, 3=Semifinali, 4=Finale
+            rounds: [
+                { name: 'Sedicesimi', matches: INITIAL_MATCHUPS.map(m => ({ ...m, winner: null })) },
+                { name: 'Ottavi', matches: Array(8).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
+                { name: 'Quarti', matches: Array(4).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
+                { name: 'Semifinali', matches: Array(2).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
+                { name: 'Finale', matches: Array(1).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
+                { name: 'Campione', winner: null } // Contiene solo il vincitore finale del torneo
+            ],
+            predictions: INITIAL_PREDICTIONS, // Mappa indexTurno -> Array di oggetti predizione per ogni match
+            favorites: INITIAL_FAVORITES       // Mappa indexTurno -> Oggetto con preferita per giocatore
+        };
+
+        // Caricamento dati da localStorage se esistenti
+        function loadState() {
+            const saved = localStorage.getItem('mondiali_prediction_state');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Errore nel parsing della cache, uso lo stato iniziale.");
+                }
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('mondiali_prediction_state', JSON.stringify(state));
+        }
+
+        function resetAll() {
+            if(confirm("Sei sicuro di voler resettare tutta la cache del gioco? Perderai ogni dato inserito.")) {
+                localStorage.removeItem('mondiali_prediction_state');
+                window.location.reload();
+            }
+        }
+
+        // Calcolo punteggi puntuali e simulazione lungimiranza
+        function calculateScores() {
+            let scores = { Roberto: 0, Alessio: 0, Emiliano: 0, Fabio: 0 };
+            let potentialLungimiranza = { Roberto: {}, Alessio: {}, Emiliano: {}, Fabio: {} };
+
+            // 1) Calcolo Punti Puntuali sui turni passati e corrente
+            for (let r = 0; r <= state.currentRoundIndex; r++) {
+                if (r > 4) break;
+                const roundMatches = state.rounds[r].matches;
+                const roundPreds = state.predictions[r] || [];
+
+                roundMatches.forEach((match, mIdx) => {
+                    if (match.winner && roundPreds[mIdx]) {
+                        PLAYERS.forEach(player => {
+                            if (roundPreds[mIdx][player] === match.winner) {
+                                scores[player] += 3;
+                            } else {
+                                scores[player] -= 1;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 2) Calcolo Lungimiranza (Potenziale/Definitiva)
+            // Troviamo il vincitore effettivo del torneo se esiste (il vincitore della finale)
+            const finalMatch = state.rounds[4].matches[0];
+            const realWinner = finalMatch ? finalMatch.winner : null;
+
+            PLAYERS.forEach(player => {
+                // Per ogni squadra candidata a vincere, calcoliamo la striscia a ritroso a partire dall'ultimo turno disponibile
+                // Generiamo una mappa di punti potenziali per ogni squadra che è ancora in corsa o che ha vinto.
+
+                // Estraggo tutte le squadre distinte che il giocatore ha votato nel corso dei vari turni
+                let votedTeams = new Set();
+                for(let r=0; r<=state.currentRoundIndex; r++) {
+                    if(state.favorites[r] && state.favorites[r][player]) {
+                        votedTeams.add(state.favorites[r][player]);
+                    }
+                }
+
+                votedTeams.forEach(team => {
+                    // Verifichiamo la striscia a ritroso per questa specifica squadra
+                    let earliestContinuousRound = -1;
+
+                    // Partiamo dal turno corrente (o dall'ultimo turno di voto valido, ossia la Finale [4])
+                    let targetStartRound = Math.min(state.currentRoundIndex, 4);
+
+                    // Controlliamo se al turno di partenza ha effettivamente votato questa squadra
+                    if (state.favorites[targetStartRound] && state.favorites[targetStartRound][player] === team) {
+                        earliestContinuousRound = targetStartRound;
+                        // Scendiamo a ritroso finché la striscia è continua
+                        for (let r = targetStartRound - 1; r >= 0; r--) {
+                            if (state.favorites[r] && state.favorites[r][player] === team) {
+                                earliestContinuousRound = r;
+                            } else {
+                                break; // Striscia interrotta
+                            }
+                        }
+                    }
+
+                    if (earliestContinuousRound !== -1) {
+                        potentialLungimiranza[player][team] = LUNGIMIRANZA_BONUS[earliestContinuousRound];
+                    } else {
+                        potentialLungimiranza[player][team] = 0;
+                    }
+                });
+            });
+
+            return { scores, potentialLungimiranza, realWinner };
+        }
+
+        // Aggiorna la tabella della classifica e i riquadri delle preferite
+        function renderSidebar() {
+            const { scores, potentialLungimiranza, realWinner } = calculateScores();
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            PLAYERS.forEach(player => {
+                const tr = document.createElement('tr');
+
+                // Costruiamo la stringa dei bonus lungimiranza potenziali o definitivi
+                let lungiText = "-";
+                if (realWinner) {
+                    // Il mondiale è finito, mostriamo il punteggio reale ottenuto
+                    const finalBonus = potentialLungimiranza[player][realWinner] || 0;
+                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player] + finalBonus}</strong> <small>(${scores[player]} + ${finalBonus} lung.)</small></td><td>${finalBonus} (Definitivo)</td>`;
+                } else {
+                    // Il mondiale è in corso, mostriamo le opzioni potenziali delle squadre ancora in gioco
+                    let entries = [];
+                    for (let team in potentialLungimiranza[player]) {
+                        // Filtra solo le squadre che non sono ancora state eliminate nel tabellone corrente, se possibile
+                        if (potentialLungimiranza[player][team] > 0) {
+                            entries.push(`${team}: +${potentialLungimiranza[player][team]}`);
+                        }
+                    }
+                    lungiText = entries.length > 0 ? entries.join('<br>') : '0';
+                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player]}</strong></td><td><small>${lungiText}</small></td>`;
+                }
+                tbody.appendChild(tr);
+            });
+
+            // Renderizza le favorite del turno corrente
+            const favDiv = document.getElementById('current-favorites');
+            favDiv.innerHTML = '';
+            PLAYERS.forEach(player => {
+                const team = (state.favorites[state.currentRoundIndex] && state.favorites[state.currentRoundIndex][player]) ? state.favorites[state.currentRoundIndex][player] : 'Da definire';
+                favDiv.innerHTML += `<div><strong>${player}</strong>: ${team}</div>`;
+            });
+
+            // Gestione visibilità pannello di configurazione del turno successivo
+            checkRoundCompletion();
+        }
+
+        // Imposta il vincitore di una partita al click sul tabellone
+        function setMatchWinner(roundIndex, matchIndex, teamName) {
+            // Non permettere modifiche a turni passati
+            if (roundIndex !== state.currentRoundIndex) return;
+            if (!teamName) return;
+
+            const match = state.rounds[roundIndex].matches[matchIndex];
+
+            if (match.winner === teamName) {
+                // Toggle: se riclicco sulla stessa squadra, annullo la vittoria
+                match.winner = null;
+            } else {
+                match.winner = teamName;
+            }
+
+            // Propaga i cambiamenti a catena sui turni successivi (se tolgo o cambio un vincitore, pulisce le caselle successive)
+            propagateTorneo();
+            saveState();
+            renderBracket();
+            renderSidebar();
+        }
+
+        // Propaga i vincitori al turno successivo nell'alberatura dello stato
+        function propagateTorneo() {
+            for (let r = 0; r < 4; r++) {
+                const currentRoundMatches = state.rounds[r].matches;
+                const nextRoundMatches = state.rounds[r+1].matches;
+
+                for (let m = 0; m < currentRoundMatches.length; m++) {
+                    const targetMatchIndex = Math.floor(m / 2);
+                    const isTeam1 = (m % 2 === 0);
+                    const winner = currentRoundMatches[m].winner;
+
+                    if (isTeam1) {
+                        nextRoundMatches[targetMatchIndex].t1 = winner;
+                    } else {
+                        nextRoundMatches[targetMatchIndex].t2 = winner;
+                    }
+
+                    // Se la squadra precedentemente presente nel turno successivo è cambiata o annullata, resetta il vincente del turno successivo
+                    if (!winner) {
+                        nextRoundMatches[targetMatchIndex].winner = null;
+                    } else {
+                        if (nextRoundMatches[targetMatchIndex].winner !== nextRoundMatches[targetMatchIndex].t1 &&
+                            nextRoundMatches[targetMatchIndex].winner !== nextRoundMatches[targetMatchIndex].t2) {
+                            nextRoundMatches[targetMatchIndex].winner = null;
+                        }
+                    }
+                }
+            }
+            // Gestione dell'eventuale vincitore assoluto (Campione) oltre la finale
+            const finalMatch = state.rounds[4].matches[0];
+            state.rounds[5].winner = finalMatch ? finalMatch.winner : null;
+        }
+
+        // Controlla se tutte le partite del turno corrente hanno un vincitore per mostrare il form di setup del turno successivo
+        function checkRoundCompletion() {
+            const currentMatches = state.rounds[state.currentRoundIndex].matches;
+            const allResolved = currentMatches.every(m => m.winner !== null);
+
+            const formDiv = document.getElementById('next-round-form');
+            const msgDiv = document.getElementById('round-status-msg');
+
+            if (allResolved && state.currentRoundIndex < 4) {
+                msgDiv.classList.add('hidden');
+                formDiv.classList.remove('hidden');
+                setupNextRoundForm();
+            } else {
+                formDiv.classList.add('hidden');
+                msgDiv.classList.remove('hidden');
+                if (state.currentRoundIndex === 4 && allResolved) {
+                    msgDiv.innerHTML = "<strong>Mondiale Concluso!</strong> Controlla la classifica definitiva comprensiva dei punti lungimiranza.";
+                } else {
+                    msgDiv.innerHTML = "Determina tutti i vincitori del turno corrente cliccando direttamente sulle squadre nel tabellone per poter configurare il turno successivo.";
+                }
+            }
+        }
+
+        // Genera dinamicamente i campi di input (select) per i pronostici e la favorita del turno successivo
+        function setupNextRoundForm() {
+            const nextRoundIdx = state.currentRoundIndex + 1;
+            const nextMatches = state.rounds[nextRoundIdx].matches;
+            const fieldsDiv = document.getElementById('form-fields');
+            fieldsDiv.innerHTML = `<h4>Configura Pronostici per: ${ROUND_NAMES[nextRoundIdx]}</h4>`;
+
+            // 1) Generazione select per i pronostici sui passaggi di turno delle partite appena generate
+            nextMatches.forEach((match, mIdx) => {
+                const matchBox = document.createElement('div');
+                matchBox.style.marginBottom = '15px';
+                matchBox.style.padding = '8px';
+                matchBox.style.background = '#fff';
+                matchBox.style.borderRadius = '4px';
+                matchBox.innerHTML = `<strong>Gara ${mIdx + 1}: ${match.t1} vs ${match.t2}</strong>`;
+
+                PLAYERS.forEach(player => {
+                    const group = document.createElement('div');
+                    group.className = 'form-group';
+                    group.innerHTML = `<label>${player}:</label>
+                        <select id="pred_${player}_${mIdx}">
+                            <option value="${match.t1}">${match.t1}</option>
+                            <option value="${match.t2}">${match.t2}</option>
+                        </select>`;
+                    matchBox.appendChild(group);
+                });
+                fieldsDiv.appendChild(matchBox);
+            });
+
+            // 2) Generazione select per la scommessa sulla squadra Favorita del nuovo turno
+            const favBox = document.createElement('div');
+            favBox.style.marginTop = '15px';
+            favBox.style.padding = '8px';
+            favBox.style.background = '#e3f2fd';
+            favBox.style.borderRadius = '4px';
+            favBox.innerHTML = `<h4>Eleggi Vincitore Mondiale per il nuovo turno</h4>`;
+
+            // Ricava tutte le squadre ancora attive nel torneo per popolare le opzioni delle favorite
+            let activeTeams = [];
+            nextMatches.forEach(m => {
+                if(m.t1) activeTeams.push(m.t1);
+                if(m.t2) activeTeams.push(m.t2);
+            });
+
+            PLAYERS.forEach(player => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+
+                // Pre-seleziona la favorita del turno precedente se è ancora in corsa
+                const previousFav = state.favorites[state.currentRoundIndex][player];
+                const isStillIn = activeTeams.includes(previousFav);
+
+                let optionsHtml = activeTeams.map(team => {
+                    const selected = (isStillIn && team === previousFav) ? 'selected' : '';
+                    return `<option value="${team}" ${selected}>${team}</option>`;
+                }).join('');
+
+                group.innerHTML = `<label>Favorita Mondiale di ${player}: ${!isStillIn ? '<span style="color:red">(Precedente eliminata!)</span>' : ''}</label>
+                    <select id="fav_${player}">
+                        ${optionsHtml}
+                    </select>`;
+                favBox.appendChild(group);
+            });
+            fieldsDiv.appendChild(favBox);
+        }
+
+        // Salva i dati inseriti nel form amministrativo e avanza ufficialmente di turno
+        function saveNextRoundPredictions() {
+            const nextRoundIdx = state.currentRoundIndex + 1;
+            const nextMatches = state.rounds[nextRoundIdx].matches;
+
+            // Inizializza array predizioni e oggetto favorite per il prossimo turno nello stato
+            state.predictions[nextRoundIdx] = [];
+            state.favorites[nextRoundIdx] = {};
+
+            // Salva pronostici partite
+            nextMatches.forEach((match, mIdx) => {
+                let matchPred = {};
+                PLAYERS.forEach(player => {
+                    const selectEl = document.getElementById(`pred_${player}_${mIdx}`);
+                    matchPred[player] = selectEl.value;
+                });
+                state.predictions[nextRoundIdx].push(matchPred);
+            });
+
+            // Salva scommessa lungimiranza (favorite)
+            PLAYERS.forEach(player => {
+                const selectFav = document.getElementById(`fav_${player}`);
+                state.favorites[nextRoundIdx][player] = selectFav.value;
+            });
+
+            // Avanza l'indice del turno corrente
+            state.currentRoundIndex = nextRoundIdx;
+
+            saveState();
+            renderBracket();
+            renderSidebar();
+        }
+
+        // Disegna graficamente l'alberatura ad eliminazione diretta (i 5 turni)
+        function renderBracket() {
+            const bracketContainer = document.getElementById('bracket');
+            bracketContainer.innerHTML = '';
+
+            // Renderizza i 5 turni (dai sedicesimi alla finale)
+            for (let r = 0; r < 5; r++) {
+                const roundData = state.rounds[r];
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'round';
+
+                const title = document.createElement('div');
+                title.className = 'round-title';
+                title.innerText = `${roundData.name} ${state.currentRoundIndex === r ? '(Corrente)' : ''}`;
+                roundDiv.appendChild(title);
+
+                roundData.matches.forEach((match, mIdx) => {
+                    const matchupDiv = document.createElement('div');
+                    matchupDiv.className = 'matchup';
+
+                    // Gestione grafiche se le squadre sono presenti o ancora da determinare
+                    const team1Name = match.t1 || 'Da determinare';
+                    const team2Name = match.t2 || 'Da determinare';
+
+                    let t1Class = 'team-row';
+                    let t2Class = 'team-row';
+
+                    if (match.winner) {
+                        if (match.winner === match.t1) { t1Class += ' winner'; t2Class += ' eliminated'; }
+                        if (match.winner === match.t2) { t2Class += ' winner'; t1Class += ' eliminated'; }
+                    }
+
+                    // Creazione righe squadre
+                    const t1Row = document.createElement('div');
+                    t1Row.className = t1Class;
+                    t1Row.innerText = team1Name;
+                    t1Row.onclick = () => setMatchWinner(r, mIdx, match.t1);
+
+                    const t2Row = document.createElement('div');
+                    t2Row.className = t2Class;
+                    t2Row.innerText = team2Name;
+                    t2Row.onclick = () => setMatchWinner(r, mIdx, match.t2);
+
+                    matchupDiv.appendChild(t1Row);
+                    matchupDiv.appendChild(t2Row);
+
+                    // Mostra i pronostici effettuati dai giocatori sotto il blocco della partita
+                    if (state.predictions[r] && state.predictions[r][mIdx]) {
+                        const predIndicator = document.createElement('div');
+                        predIndicator.className = 'predictions-indicator';
+
+                        let predStrings = [];
+                        PLAYERS.forEach(player => {
+                            const pPred = state.predictions[r][mIdx][player];
+                            if(pPred) {
+                                // Evidenzia in verde o rosso se il turno è già stato marcato con un vincitore
+                                let color = 'inherit';
+                                if (match.winner) {
+                                    color = (pPred === match.winner) ? 'var(--success-color)' : 'var(--danger-color)';
+                                }
+                                predStrings.push(`<span style="color: ${color}"><strong>${player[0]}</strong>:${pPred}</span>`);
+                            }
+                        });
+                        predIndicator.innerHTML = predStrings.join(' | ');
+                        matchupDiv.appendChild(predIndicator);
+                    }
+
+                    roundDiv.appendChild(matchupDiv);
+                });
+
+                bracketContainer.appendChild(roundDiv);
+            }
+        }
+
+        // Avvio dell'applicazione
+        window.onload = function() {
+            loadState();
+            // Assicura la corretta catena ad albero dei vincitori inseriti prima del disegno
+            propagateTorneo();
+            renderBracket();
+            renderSidebar();
+        };
+    </script>
+</body>
+</html>
