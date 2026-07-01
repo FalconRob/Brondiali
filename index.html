@@ -5,14 +5,19 @@
     <title>Pronostici Mondiali (Centralizzato)</title>
     <style>
         :root {
-            --bg-color: #f4f6f9;
+            --bg-color: #f0f3f6;
             --card-bg: #ffffff;
-            --border-color: #ccd0d5;
-            --text-color: #2c3e50;
-            --accent-color: #3498db;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
+            --border-color: #cbd5e1;
+            --text-color: #1e293b;
+            --accent-color: #2563eb;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
         }
+        
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -20,224 +25,282 @@
             margin: 0;
             padding: 20px;
         }
-        h1, h2, h3 {
+        
+        h1 {
             text-align: center;
-            margin-top: 0;
+            margin: 0 0 20px 0;
+            font-size: 28px;
         }
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
+
+        /* Layout principale superiore/inferiore anziché colonne strette */
+        .dashboard-top {
+            width: 100%;
+            margin-bottom: 25px;
+            overflow: hidden;
         }
-        .main-panel {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto;
+
+        .side-block {
+            width: 24%;
+            float: left;
+            margin-right: 1%;
         }
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .side-block:last-child {
+            margin-right: 0;
+            width: 25%;
         }
+
         .card {
             background: var(--card-bg);
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-height: 190px;
+            font-size: 14px;
         }
         
+        .card h2, .card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 5px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
         th, td {
-            padding: 10px;
+            padding: 6px 8px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
         }
         th {
             background-color: #f8f9fa;
         }
 
-        .bracket {
-            display: flex;
-            gap: 40px;
-            padding: 20px 0;
-            min-width: 1200px;
+        .clear {
+            clear: both;
         }
-        .round {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            flex-gap: 20px;
-            flex: 1;
+
+        /* Alberatura ad albero orizzontale geometrico */
+        .bracket-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 15px;
         }
-        .round-title {
+
+        .bracket-container {
+            display: table;
+            width: 100%;
+            min-width: 1250px;
+            table-layout: fixed;
+        }
+
+        .round-column {
+            display: table-cell;
+            vertical-align: middle;
+            height: 100%;
+        }
+
+        .round-header {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 15px;
-            background: #e9ecef;
-            padding: 8px;
-            border-radius: 4px;
+            font-size: 14px;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 0 10px 20px 10px;
         }
-        .matchup {
-            background: #f8f9fa;
+
+        /* Altezze e margini calcolati per la perfetta centratura ad albero */
+        .matchup-wrapper {
+            display: block;
+            padding: 0 10px;
+        }
+
+        /* Sedicesimi */
+        .r-0 .matchup-wrapper { height: 95px; margin: 5px 0; }
+        /* Ottavi: centra perfettamente 2 partite dei sedicesimi */
+        .r-1 .matchup-wrapper { height: 190px; padding-top: 45px; }
+        /* Quarti: centra perfettamente 2 partite degli ottavi */
+        .r-2 .matchup-wrapper { height: 380px; padding-top: 140px; }
+        /* Semifinali: centra perfettamente 2 partite dei quarti */
+        .r-3 .matchup-wrapper { height: 760px; padding-top: 330px; }
+        /* Finale: centra perfettamente le semifinali */
+        .r-4 .matchup-wrapper { height: 1520px; padding-top: 710px; }
+
+        .matchup-box {
+            background: #f8fafc;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 8px;
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
+
         .team-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px;
+            display: block;
+            padding: 5px 8px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        .team-row:last-child {
+            margin-bottom: 0;
+        }
+
         .admin-mode .team-row {
             cursor: pointer;
         }
         .admin-mode .team-row:hover {
-            background-color: #e2e6ea;
+            background-color: #cbd5e1;
         }
         .team-row.winner {
-            background-color: #d4edda !important;
-            color: #155724;
+            background-color: #dcfce7 !important;
+            color: #14532d;
             font-weight: bold;
         }
         .team-row.eliminated {
             text-decoration: line-through;
-            opacity: 0.6;
+            opacity: 0.5;
         }
+
         .predictions-indicator {
             font-size: 11px;
-            color: #7f8c8d;
+            color: #64748b;
             margin-top: 4px;
-            border-top: 1px dashed #dee2e6;
+            border-top: 1px dashed #e2e8f0;
             padding-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .admin-section {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #78350f;
         }
         .btn {
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 8px;
+            font-size: 13px;
         }
-        .btn:hover {
-            opacity: 0.9;
-        }
+        .btn:hover { opacity: 0.9; }
+        
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            margin-bottom: 4px;
-            color: #333;
+            margin-bottom: 2px;
+            color: #475569;
         }
         select, input[type="password"] {
             width: 100%;
-            padding: 6px;
+            padding: 5px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
-            box-sizing: border-box;
+            font-size: 12px;
         }
-        .hidden {
-            display: none;
-        }
+        .hidden { display: none !important; }
         .badge-admin {
-            background: #f39c12;
+            background: #d97706;
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             display: inline-block;
-            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🏆 Pronostici Mondiali tra Bros 🏆</h1>
+    <h1>🏆 Pronostici Mondiali tra Amici 🏆</h1>
 
-    <div class="container">
-        <div class="main-panel">
-            <h2>Tabellone Fasi Finali</h2>
-            <div class="bracket" id="bracket"></div>
-        </div>
-
-        <div class="side-panel">
-            <!-- Accesso Admin -->
+    <!-- Pannelli di controllo superiori disposti orizzontalmente -->
+    <div class="dashboard-top">
+        <!-- Area Admin -->
+        <div class="side-block">
             <div class="card admin-section">
                 <h3>Area Amministratore</h3>
                 <div id="login-form">
-                    <input type="password" id="admin-token" placeholder="Inserisci il Token GitHub">
+                    <input type="password" id="admin-token" placeholder="Token GitHub">
                     <button class="btn" onclick="loginAdmin()">Attiva Modifica</button>
                 </div>
                 <div id="admin-logged" class="hidden">
-                    <span class="badge-admin">Modalità Admin Attiva</span>
-                    <button class="btn" style="background:#d35400" onclick="pushStateToGitHub()">Salva modifiche su GitHub</button>
+                    <span class="badge-admin">Admin Attivo</span>
+                    <button class="btn" style="background:#ea580c" onclick="pushStateToGitHub()">Salva modifiche su GitHub</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Classifica -->
-            <div class="card">
+        <!-- Classifica -->
+        <div class="side-block">
+            <div class="card" style="overflow-y: auto;">
                 <h2>Classifica Generale</h2>
                 <table>
                     <thead>
                         <tr>
                             <th>Giocatore</th>
                             <th>Punti</th>
-                            <th>Lungimiranza (potenziale)</th>
+                            <th>Lungi.</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-body"></tbody>
                 </table>
             </div>
+        </div>
 
-            <!-- Preferite -->
+        <!-- Favorite -->
+        <div class="side-block">
             <div class="card">
                 <h3>Favorite Elette (Turno Corrente)</h3>
-                <div id="current-favorites"></div>
+                <div id="current-favorites" style="line-height: 1.6;"></div>
             </div>
+        </div>
 
-            <!-- Configurazione Turno -->
-            <div class="card admin-section hidden" id="admin-panel">
-                <h3>Gestione Pronostici Turno Successivo</h3>
+        <!-- Gestione Turno Successivo -->
+        <div class="side-block">
+            <div class="card admin-section" id="admin-panel" style="overflow-y: auto;">
+                <h3>Avanzamento Torneo</h3>
                 <div id="next-round-form" class="hidden">
-                    <div id="form-fields"></div>
-                    <button class="btn" onclick="saveNextRoundPredictions()">Sblocca e passa al prossimo turno</button>
+                    <div id="form-fields" style="max-height: 110px; overflow-y: auto; background:#fff; padding:5px; border-radius:4px;"></div>
+                    <button class="btn" onclick="saveNextRoundPredictions()">Sblocca Prossimo Turno</button>
                 </div>
-                <div id="round-status-msg"></div>
+                <div id="round-status-msg" style="font-size: 12px;"></div>
             </div>
         </div>
     </div>
 
+    <div class="clear"></div>
+
+    <!-- Contenitore dell'Alberatura Orizzontale Bilanciata -->
+    <div class="bracket-scroll-wrapper">
+        <div class="bracket-container" id="bracket"></div>
+    </div>
+
     <script>
         // CONFIGURAZIONE REPOSITORY GITHUB
-        const GH_USER = 'FalconRob'; 
-        const GH_REPO = 'Brondiali';
+        const GH_USER = 'IL_TUO_USERNAME_GITHUB'; 
+        const GH_REPO = 'IL_NOME_DEL_TUO_REPOSITORY';
         const GH_FILE = 'dati.json';
 
         const PLAYERS = ['Roberto', 'Alessio', 'Emiliano', 'Fabio'];
@@ -297,37 +360,29 @@
             favorites: INITIAL_FAVORITES
         };
 
-        // Scarica lo stato globale centralizzato da GitHub
         async function fetchStateFromGitHub() {
             try {
-                // Il timestamp evita la cache del browser forzando lo scaricamento dei dati in tempo reale
                 const response = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?t=${new Date().getTime()}`);
                 if (response.ok) {
                     const data = await response.json();
                     FILE_SHA = data.sha; 
                     const content = decodeURIComponent(escape(atob(data.content)));
                     const parsed = JSON.parse(content);
-                    
-                    // Se il file remoto non è vuoto, sovrascrivi lo stato locale
                     if (parsed && parsed.rounds) {
                         state = parsed;
                     }
                 }
             } catch (e) {
-                console.error("Impossibile leggere i dati da GitHub, uso i dati di default.", e);
+                console.error("Errore fetch da GitHub, carico default.", e);
             }
             propagateTorneo();
             renderBracket();
             renderSidebar();
         }
 
-        // Invia lo stato aggiornato a GitHub (solo per l'admin)
         async function pushStateToGitHub() {
-            if (!GITHUB_TOKEN) return alert("Inserisci prima il token!");
-            
-            // Prima di salvare rifacciamo il fetch per aggiornare il FILE_SHA corrente ed evitare conflitti di sovrascrittura
+            if (!GITHUB_TOKEN) return alert("Attiva prima la modalità amministratore!");
             await fetchStateFromGitHub();
-
             const contentStr = JSON.stringify(state, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
 
@@ -339,18 +394,18 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: "Aggiornamento tabellone e punteggi mondiali",
+                        message: "Aggiornamento risultati mondiali",
                         content: base64Content,
                         sha: FILE_SHA
                     })
                 });
 
                 if (response.ok) {
-                    alert("Salvataggio su GitHub completato con successo! I tuoi amici vedranno gli aggiornamenti entro un paio di minuti.");
+                    alert("Salvataggio completato!");
                     fetchStateFromGitHub();
                 } else {
                     const errData = await response.json();
-                    alert("Errore durante il salvataggio: " + errData.message);
+                    alert("Errore: " + errData.message);
                 }
             } catch (e) {
                 alert("Errore di rete: " + e.message);
@@ -363,7 +418,6 @@
                 GITHUB_TOKEN = token;
                 document.getElementById('login-form').classList.add('hidden');
                 document.getElementById('admin-logged').classList.remove('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
                 document.body.classList.add('admin-mode');
                 renderBracket();
                 checkRoundCompletion();
@@ -434,44 +488,29 @@
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
 
-            // Creiamo un array di oggetti per poter ordinare i giocatori in base ai punti
             let leaderboardData = PLAYERS.map(player => {
-                let finalBonus = 0;
-                if (realWinner) {
-                    finalBonus = potentialLungimiranza[player][realWinner] || 0;
-                }
-                
-                // Il punteggio totale per la classifica è il punteggio puntuale + eventuale bonus definitivo
-                let totalScore = scores[player] + finalBonus;
-
+                let finalBonus = realWinner ? (potentialLungimiranza[player][realWinner] || 0) : 0;
                 return {
                     name: player,
                     score: scores[player],
                     finalBonus: finalBonus,
-                    totalScore: totalScore,
+                    totalScore: scores[player] + finalBonus,
                     potential: potentialLungimiranza[player]
                 };
             });
 
-            // Ordina la classifica in modo decrescente in base al punteggio totale
             leaderboardData.sort((a, b) => b.totalScore - a.totalScore);
 
-            // Genera le righe della tabella seguendo il nuovo ordine
-            leaderboardData.forEach(playerData => {
+            leaderboardData.forEach(pData => {
                 const tr = document.createElement('tr');
-                const player = playerData.name;
-
                 if (realWinner) {
-                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${playerData.totalScore}</strong> <small>(${playerData.score} + ${playerData.finalBonus} lung.)</small></td><td>${playerData.finalBonus}</td>`;
+                    tr.innerHTML = `<td><strong>${pData.name}</strong></td><td><strong>${pData.totalScore}</strong> <small>(${pData.score}+${pData.finalBonus})</small></td><td>${pData.finalBonus}</td>`;
                 } else {
                     let entries = [];
-                    for (let team in playerData.potential) {
-                        if (playerData.potential[team] > 0) {
-                            entries.push(`${team}: +${playerData.potential[team]}`);
-                        }
+                    for (let team in pData.potential) {
+                        if (pData.potential[team] > 0) entries.push(`${team}:+${pData.potential[team]}`);
                     }
-                    let lungiText = entries.length > 0 ? entries.join('<br>') : '0';
-                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${playerData.score}</strong></td><td><small>${lungiText}</small></td>`;
+                    tr.innerHTML = `<td><strong>${pData.name}</strong></td><td><strong>${pData.score}</strong></td><td><small>${entries.join(', ') || '0'}</small></td>`;
                 }
                 tbody.appendChild(tr);
             });
@@ -480,17 +519,16 @@
             favDiv.innerHTML = '';
             PLAYERS.forEach(player => {
                 const team = (state.favorites[state.currentRoundIndex] && state.favorites[state.currentRoundIndex][player]) ? state.favorites[state.currentRoundIndex][player] : 'Da definire';
-                favDiv.innerHTML += `<div><strong>${player}</strong>: ${team}</div>`;
+                favDiv.innerHTML += `<div><strong>${player[0]}</strong>: ${team}</div>`;
             });
 
             checkRoundCompletion();
         }
 
         function setMatchWinner(roundIndex, matchIndex, teamName) {
-            // Solo chi ha effettuato il login come admin può modificare cliccando sulle celle
             if (!GITHUB_TOKEN) return; 
             if (roundIndex !== state.currentRoundIndex) return;
-            if (!teamName) return;
+            if (!teamName || teamName === 'Da determinare') return;
 
             const match = state.rounds[roundIndex].matches[matchIndex];
             match.winner = (match.winner === teamName) ? null : teamName;
@@ -510,11 +548,8 @@
                     const isTeam1 = (m % 2 === 0);
                     const winner = currentRoundMatches[m].winner;
 
-                    if (isTeam1) {
-                        nextRoundMatches[targetMatchIndex].t1 = winner;
-                    } else {
-                        nextRoundMatches[targetMatchIndex].t2 = winner;
-                    }
+                    if (isTeam1) nextRoundMatches[targetMatchIndex].t1 = winner;
+                    else nextRoundMatches[targetMatchIndex].t2 = winner;
 
                     if (!winner) {
                         nextRoundMatches[targetMatchIndex].winner = null;
@@ -526,8 +561,6 @@
                     }
                 }
             }
-            const finalMatch = state.rounds[4].matches[0];
-            state.rounds[5].winner = finalMatch ? finalMatch.winner : null;
         }
 
         function checkRoundCompletion() {
@@ -538,7 +571,7 @@
             const msgDiv = document.getElementById('round-status-msg');
 
             if (!GITHUB_TOKEN) {
-                msgDiv.innerHTML = "Visualizzazione in sola lettura.";
+                msgDiv.innerHTML = "Sola lettura.";
                 formDiv.className = 'hidden';
                 return;
             }
@@ -551,9 +584,9 @@
                 formDiv.className = 'hidden';
                 msgDiv.classList.remove('hidden');
                 if (state.currentRoundIndex === 4 && allResolved) {
-                    msgDiv.innerHTML = "<strong>Mondiale Concluso!</strong> Premi il tasto arancione in alto per salvare il verdetto finale.";
+                    msgDiv.innerHTML = "<strong>Concluso!</strong> Ricorda di salvare i risultati.";
                 } else {
-                    msgDiv.innerHTML = "Scegli tutti i vincitori del turno cliccando sulle squadre nel tabellone, poi compila qui i nuovi pronostici.";
+                    msgDiv.innerHTML = "Seleziona tutti i vincitori del turno cliccando sulle squadre nel tabellone.";
                 }
             }
         }
@@ -562,61 +595,47 @@
             const nextRoundIdx = state.currentRoundIndex + 1;
             const nextMatches = state.rounds[nextRoundIdx].matches;
             const fieldsDiv = document.getElementById('form-fields');
-            fieldsDiv.innerHTML = `<h4>Inserisci i Pronostici per: ${ROUND_NAMES[nextRoundIdx]}</h4>`;
+            fieldsDiv.innerHTML = '';
 
             nextMatches.forEach((match, mIdx) => {
-                const matchBox = document.createElement('div');
-                matchBox.style.marginBottom = '15px';
-                matchBox.style.padding = '8px';
-                matchBox.style.background = '#fff';
-                matchBox.style.borderRadius = '4px';
-                matchBox.innerHTML = `<strong>Gara ${mIdx + 1}: ${match.t1} vs ${match.t2}</strong>`;
+                const container = document.createElement('div');
+                container.style.borderBottom = '1px solid #eee';
+                container.style.paddingBottom = '5px';
+                container.style.marginBottom = '5px';
+                container.innerHTML = `<strong>Gara ${mIdx+1}: ${match.t1} vs ${match.t2}</strong>`;
 
                 PLAYERS.forEach(player => {
-                    const group = document.createElement('div');
-                    group.className = 'form-group';
-                    group.innerHTML = `<label>${player}:</label>
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+                    div.innerHTML = `<label>${player}:</label>
                         <select id="pred_${player}_${mIdx}">
                             <option value="${match.t1}">${match.t1}</option>
                             <option value="${match.t2}">${match.t2}</option>
                         </select>`;
-                    matchBox.appendChild(group);
+                    container.appendChild(div);
                 });
-                fieldsDiv.appendChild(matchBox);
+                fieldsDiv.appendChild(container);
             });
 
-            const favBox = document.createElement('div');
-            favBox.style.marginTop = '15px';
-            favBox.style.padding = '8px';
-            favBox.style.background = '#e3f2fd';
-            favBox.style.borderRadius = '4px';
-            favBox.innerHTML = `<h4>Eleggi Vincitore Mondiale per il nuovo turno</h4>`;
-
+            const favContainer = document.createElement('div');
+            favContainer.style.background = '#eff6ff';
+            favContainer.style.padding = '5px';
+            favContainer.innerHTML = '<strong>Favorite Nuovo Turno</strong>';
+            
             let activeTeams = [];
-            nextMatches.forEach(m => {
-                if(m.t1) activeTeams.push(m.t1);
-                if(m.t2) activeTeams.push(m.t2);
-            });
+            nextMatches.forEach(m => { activeTeams.push(m.t1, m.t2); });
 
             PLAYERS.forEach(player => {
-                const group = document.createElement('div');
-                group.className = 'form-group';
+                const prevFav = state.favorites[state.currentRoundIndex][player];
+                const isStillIn = activeTeams.includes(prevFav);
+                let options = activeTeams.map(t => `<option value="${t}" ${isStillIn && t===prevFav?'selected':''}>${t}</option>`).join('');
                 
-                const previousFav = state.favorites[state.currentRoundIndex][player];
-                const isStillIn = activeTeams.includes(previousFav);
-
-                let optionsHtml = activeTeams.map(team => {
-                    const selected = (isStillIn && team === previousFav) ? 'selected' : '';
-                    return `<option value="${team}" ${selected}>${team}</option>`;
-                }).join('');
-
-                group.innerHTML = `<label>Favorita Mondiale di ${player}: ${!isStillIn ? '<span style="color:red">(Eliminata)</span>' : ''}</label>
-                    <select id="fav_${player}">
-                        ${optionsHtml}
-                    </select>`;
-                favBox.appendChild(group);
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `<label>${player} ${!isStillIn?'(Eliminata!)':''}:</label><select id="fav_${player}">${options}</select>`;
+                favContainer.appendChild(div);
             });
-            fieldsDiv.appendChild(favBox);
+            fieldsDiv.appendChild(favContainer);
         }
 
         function saveNextRoundPredictions() {
@@ -629,89 +648,82 @@
             nextMatches.forEach((match, mIdx) => {
                 let matchPred = {};
                 PLAYERS.forEach(player => {
-                    const selectEl = document.getElementById(`pred_${player}_${mIdx}`);
-                    matchPred[player] = selectEl.value;
+                    matchPred[player] = document.getElementById(`pred_${player}_${mIdx}`).value;
                 });
                 state.predictions[nextRoundIdx].push(matchPred);
             });
 
             PLAYERS.forEach(player => {
-                const selectFav = document.getElementById(`fav_${player}`);
-                state.favorites[nextRoundIdx][player] = selectFav.value;
+                state.favorites[nextRoundIdx][player] = document.getElementById(`fav_${player}`).value;
             });
 
             state.currentRoundIndex = nextRoundIdx;
-            
             renderBracket();
             renderSidebar();
-            alert("Turno avanzato localmente. Ricordati di cliccare sul tasto arancione 'Salva modifiche su GitHub' in alto per pubblicarlo a tutti!");
         }
 
         function renderBracket() {
-            const bracketContainer = document.getElementById('bracket');
-            bracketContainer.innerHTML = '';
+            const container = document.getElementById('bracket');
+            container.innerHTML = '';
 
             for (let r = 0; r < 5; r++) {
                 const roundData = state.rounds[r];
-                const roundDiv = document.createElement('div');
-                roundDiv.className = 'round';
+                const col = document.createElement('div');
+                col.className = `round-column r-${r}`;
 
-                const title = document.createElement('div');
-                title.className = 'round-title';
-                title.innerText = `${roundData.name} ${state.currentRoundIndex === r ? '(Corrente)' : ''}`;
-                roundDiv.appendChild(title);
+                const header = document.createElement('div');
+                header.className = 'round-header';
+                header.innerText = roundData.name + (state.currentRoundIndex === r ? ' 🟢' : '');
+                col.appendChild(header);
 
                 roundData.matches.forEach((match, mIdx) => {
-                    const matchupDiv = document.createElement('div');
-                    matchupDiv.className = 'matchup';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'matchup-wrapper';
 
-                    const team1Name = match.t1 || 'Da determinare';
-                    const team2Name = match.t2 || 'Da determinare';
+                    const box = document.createElement('div');
+                    box.className = 'matchup-box';
 
-                    let t1Class = 'team-row';
-                    let t2Class = 'team-row';
+                    const t1Name = match.t1 || 'Da determinare';
+                    const t2Name = match.t2 || 'Da determinare';
 
+                    let c1 = 'team-row', c2 = 'team-row';
                     if (match.winner) {
-                        if (match.winner === match.t1) { t1Class += ' winner'; t2Class += ' eliminated'; }
-                        if (match.winner === match.t2) { t2Class += ' winner'; t1Class += ' eliminated'; }
+                        if (match.winner === match.t1) { c1 += ' winner'; c2 += ' eliminated'; }
+                        if (match.winner === match.t2) { c2 += ' winner'; c1 += ' eliminated'; }
                     }
 
-                    const t1Row = document.createElement('div');
-                    t1Row.className = t1Class;
-                    t1Row.innerText = team1Name;
-                    t1Row.onclick = () => setMatchWinner(r, mIdx, match.t1);
+                    const row1 = document.createElement('div');
+                    row1.className = c1; row1.innerText = t1Name;
+                    row1.onclick = () => setMatchWinner(r, mIdx, match.t1);
 
-                    const t2Row = document.createElement('div');
-                    t2Row.className = t2Class;
-                    t2Row.innerText = team2Name;
-                    t2Row.onclick = () => setMatchWinner(r, mIdx, match.t2);
+                    const row2 = document.createElement('div');
+                    row2.className = c2; row2.innerText = t2Name;
+                    row2.onclick = () => setMatchWinner(r, mIdx, match.t2);
 
-                    matchupDiv.appendChild(t1Row);
-                    matchupDiv.appendChild(t2Row);
+                    box.appendChild(row1);
+                    box.appendChild(row2);
 
                     if (state.predictions[r] && state.predictions[r][mIdx]) {
-                        const predIndicator = document.createElement('div');
-                        predIndicator.className = 'predictions-indicator';
-                        
-                        let predStrings = [];
-                        PLAYERS.forEach(player => {
-                            const pPred = state.predictions[r][mIdx][player];
-                            if(pPred) {
-                                let color = 'inherit';
-                                if (match.winner) {
-                                    color = (pPred === match.winner) ? 'var(--success-color)' : 'var(--danger-color)';
-                                }
-                                predStrings.push(`<span style="color: ${color}"><strong>${player[0]}</strong>:${pPred}</span>`);
+                        const pred = document.createElement('div');
+                        pred.className = 'predictions-indicator';
+                        let str = [];
+                        PLAYERS.forEach(p => {
+                            const pP = state.predictions[r][mIdx][p];
+                            if(pP) {
+                                let col = 'inherit';
+                                if (match.winner) col = (pP === match.winner) ? 'var(--success-color)' : 'var(--danger-color)';
+                                str.push(`<span style="color:${col}"><strong>${p[0]}</strong>:${pP}</span>`);
                             }
                         });
-                        predIndicator.innerHTML = predStrings.join(' | ');
-                        matchupDiv.appendChild(predIndicator);
+                        pred.innerHTML = str.join(' ');
+                        box.appendChild(pred);
                     }
 
-                    roundDiv.appendChild(matchupDiv);
+                    wrapper.appendChild(box);
+                    col.appendChild(wrapper);
                 });
 
-                bracketContainer.appendChild(roundDiv);
+                container.appendChild(col);
             }
         }
 
