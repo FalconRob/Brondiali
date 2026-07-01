@@ -434,20 +434,44 @@
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
 
-            PLAYERS.forEach(player => {
-                const tr = document.createElement('tr');
+            // Creiamo un array di oggetti per poter ordinare i giocatori in base ai punti
+            let leaderboardData = PLAYERS.map(player => {
+                let finalBonus = 0;
                 if (realWinner) {
-                    const finalBonus = potentialLungimiranza[player][realWinner] || 0;
-                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player] + finalBonus}</strong> <small>(${scores[player]} + ${finalBonus} lung.)</small></td><td>${finalBonus}</td>`;
+                    finalBonus = potentialLungimiranza[player][realWinner] || 0;
+                }
+                
+                // Il punteggio totale per la classifica è il punteggio puntuale + eventuale bonus definitivo
+                let totalScore = scores[player] + finalBonus;
+
+                return {
+                    name: player,
+                    score: scores[player],
+                    finalBonus: finalBonus,
+                    totalScore: totalScore,
+                    potential: potentialLungimiranza[player]
+                };
+            });
+
+            // Ordina la classifica in modo decrescente in base al punteggio totale
+            leaderboardData.sort((a, b) => b.totalScore - a.totalScore);
+
+            // Genera le righe della tabella seguendo il nuovo ordine
+            leaderboardData.forEach(playerData => {
+                const tr = document.createElement('tr');
+                const player = playerData.name;
+
+                if (realWinner) {
+                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${playerData.totalScore}</strong> <small>(${playerData.score} + ${playerData.finalBonus} lung.)</small></td><td>${playerData.finalBonus}</td>`;
                 } else {
                     let entries = [];
-                    for (let team in potentialLungimiranza[player]) {
-                        if (potentialLungimiranza[player][team] > 0) {
-                            entries.push(`${team}: +${potentialLungimiranza[player][team]}`);
+                    for (let team in playerData.potential) {
+                        if (playerData.potential[team] > 0) {
+                            entries.push(`${team}: +${playerData.potential[team]}`);
                         }
                     }
                     let lungiText = entries.length > 0 ? entries.join('<br>') : '0';
-                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player]}</strong></td><td><small>${lungiText}</small></td>`;
+                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${playerData.score}</strong></td><td><small>${lungiText}</small></td>`;
                 }
                 tbody.appendChild(tr);
             });
