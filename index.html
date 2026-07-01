@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Pronostici Mondiali</title>
+    <title>Pronostici Mondiali (Centralizzato)</title>
     <style>
         :root {
             --bg-color: #f4f6f9;
@@ -49,8 +49,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-
-        /* Classifica */
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -65,7 +64,6 @@
             background-color: #f8f9fa;
         }
 
-        /* Bracket Layout */
         .bracket {
             display: flex;
             gap: 40px;
@@ -103,11 +101,13 @@
             align-items: center;
             padding: 6px;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 14px;
             font-weight: 500;
         }
-        .team-row:hover {
+        .admin-mode .team-row {
+            cursor: pointer;
+        }
+        .admin-mode .team-row:hover {
             background-color: #e2e6ea;
         }
         .team-row.winner {
@@ -127,7 +127,6 @@
             padding-top: 4px;
         }
 
-        /* Modale / Pannello inserimento */
         .admin-section {
             background: #fff3cd;
             border: 1px solid #ffeeba;
@@ -147,9 +146,6 @@
         .btn:hover {
             opacity: 0.9;
         }
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
         .form-group {
             margin-bottom: 12px;
         }
@@ -160,14 +156,24 @@
             margin-bottom: 4px;
             color: #333;
         }
-        select {
+        select, input[type="password"] {
             width: 100%;
             padding: 6px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
+            box-sizing: border-box;
         }
         .hidden {
             display: none;
+        }
+        .badge-admin {
+            background: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -176,15 +182,26 @@
     <h1>🏆 Pronostici Mondiali tra Amici 🏆</h1>
 
     <div class="container">
-        <!-- Pannello Principale: Alberatura del Torneo -->
         <div class="main-panel">
             <h2>Tabellone Fasi Finali</h2>
             <div class="bracket" id="bracket"></div>
         </div>
 
-        <!-- Pannello Laterale: Classifica e Gestione Turni -->
         <div class="side-panel">
-            <!-- Classifica Live -->
+            <!-- Accesso Admin -->
+            <div class="card admin-section">
+                <h3>Area Amministratore</h3>
+                <div id="login-form">
+                    <input type="password" id="admin-token" placeholder="Inserisci il Token GitHub">
+                    <button class="btn" onclick="loginAdmin()">Attiva Modifica</button>
+                </div>
+                <div id="admin-logged" class="hidden">
+                    <span class="badge-admin">Modalità Admin Attiva</span>
+                    <button class="btn" style="background:#d35400" onclick="pushStateToGitHub()">Salva modifiche su GitHub</button>
+                </div>
+            </div>
+
+            <!-- Classifica -->
             <div class="card">
                 <h2>Classifica Generale</h2>
                 <table>
@@ -192,68 +209,57 @@
                         <tr>
                             <th>Giocatore</th>
                             <th>Punti</th>
-                            <th>Lungi. (Potenziale)</th>
+                            <th>Lungi.</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-body"></tbody>
                 </table>
             </div>
 
-            <!-- Preferite Correnti -->
+            <!-- Preferite -->
             <div class="card">
                 <h3>Favorite Elette (Turno Corrente)</h3>
                 <div id="current-favorites"></div>
             </div>
 
-            <!-- Pannello di Amministrazione per l'avanzamento -->
-            <div class="card admin-section" id="admin-panel">
+            <!-- Configurazione Turno -->
+            <div class="card admin-section hidden" id="admin-panel">
                 <h3>Gestione Pronostici Turno Successivo</h3>
                 <div id="next-round-form" class="hidden">
-                    <p style="font-size: 13px; color: #666;">Tutte le scommesse per il prossimo turno devono essere inserite prima di sbloccare il turno.</p>
                     <div id="form-fields"></div>
-                    <button class="btn" onclick="saveNextRoundPredictions()">Salva e Passa al Prossimo Turno</button>
+                    <button class="btn" onclick="saveNextRoundPredictions()">Sblocca e passa al prossimo turno</button>
                 </div>
-                <div id="round-status-msg">
-                    Determina tutti i vincitori del turno corrente cliccando direttamente sulle squadre nel tabellone per poter configurare il turno successivo.
-                </div>
-            </div>
-
-            <div class="card">
-                <button class="btn btn-danger" onclick="resetAll()">Reset Totale Cache</button>
+                <div id="round-status-msg"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAZIONE REPOSITORY GITHUB
+        const GH_USER = 'FalconRob'; 
+        const GH_REPO = 'Brondiali';
+        const GH_FILE = 'dati.json';
+
         const PLAYERS = ['Roberto', 'Alessio', 'Emiliano', 'Fabio'];
         const ROUND_NAMES = ['Sedicesimi', 'Ottavi', 'Quarti', 'Semifinali', 'Finale', 'Campione'];
-        const LUNGIMIRANZA_BONUS = [10, 7, 5, 3, 0]; // Associati a Sedicesimi, Ottavi, Quarti, Semifinali, Finale
+        const LUNGIMIRANZA_BONUS = [10, 7, 5, 3, 0];
 
-        // Struttura iniziale dei sedicesimi come definita dall'utente
+        let GITHUB_TOKEN = '';
+        let FILE_SHA = ''; 
+
         const INITIAL_MATCHUPS = [
-            { t1: 'Germania', t2: 'Paraguay' },
-            { t1: 'Francia', t2: 'Svezia' },
-            { t1: 'SudAfrica', t2: 'Canada' },
-            { t1: 'Olanda', t2: 'Marocco' },
-            { t1: 'Portogallo', t2: 'Croazia' },
-            { t1: 'Spagna', t2: 'Austria' },
-            { t1: 'USA', t2: 'Bosnia-Erzegovina' },
-            { t1: 'Belgio', t2: 'Senegal' },
-            { t1: 'Brasile', t2: 'Giappone' },
-            { t1: 'Costa d\'Avorio', t2: 'Norvegia' },
-            { t1: 'Messico', t2: 'Ecurador' }, // Corretto refuso 'Ecurador' in Ecuador internamente per coerenza
-            { t1: 'Inghilterra', t2: 'Repubblica Democratica del Congo' },
-            { t1: 'Argentina', t2: 'Capo Verde' },
-            { t1: 'Australia', t2: 'Egitto' },
-            { t1: 'Svizzera', t2: 'Algeria' },
-            { t1: 'Colombia', t2: 'Ghana' }
+            { t1: 'Germania', t2: 'Paraguay' }, { t1: 'Francia', t2: 'Svezia' },
+            { t1: 'SudAfrica', t2: 'Canada' }, { t1: 'Olanda', t2: 'Marocco' },
+            { t1: 'Portogallo', t2: 'Croazia' }, { t1: 'Spagna', t2: 'Austria' },
+            { t1: 'USA', t2: 'Bosnia-Erzegovina' }, { t1: 'Belgio', t2: 'Senegal' },
+            { t1: 'Brasile', t2: 'Giappone' }, { t1: 'Costa d\'Avorio', t2: 'Norvegia' },
+            { t1: 'Messico', t2: 'Ecuador' }, { t1: 'Inghilterra', t2: 'Repubblica Democratica del Congo' },
+            { t1: 'Argentina', t2: 'Capo Verde' }, { t1: 'Australia', t2: 'Egitto' },
+            { t1: 'Svizzera', t2: 'Algeria' }, { t1: 'Colombia', t2: 'Ghana' }
         ];
 
-        // Sostituito "Ecurador" con Ecuador se necessario
-        INITIAL_MATCHUPS[10].t2 = 'Ecuador';
-
         const INITIAL_PREDICTIONS = {
-            0: [ // Turno 0: Sedicesimi
+            0: [
                 { Roberto: 'Germania', Alessio: 'Paraguay', Emiliano: 'Germania', Fabio: 'Germania' },
                 { Roberto: 'Francia', Alessio: 'Francia', Emiliano: 'Francia', Fabio: 'Francia' },
                 { Roberto: 'Canada', Alessio: 'Canada', Emiliano: 'Canada', Fabio: 'Canada' },
@@ -277,50 +283,97 @@
             0: { Roberto: 'Spagna', Alessio: 'Marocco', Emiliano: 'Francia', Fabio: 'Argentina' }
         };
 
-        // Stato dell'applicazione globale
         let state = {
-            currentRoundIndex: 0, // 0=Sedicesimi, 1=Ottavi, 2=Quarti, 3=Semifinali, 4=Finale
+            currentRoundIndex: 0,
             rounds: [
                 { name: 'Sedicesimi', matches: INITIAL_MATCHUPS.map(m => ({ ...m, winner: null })) },
                 { name: 'Ottavi', matches: Array(8).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
                 { name: 'Quarti', matches: Array(4).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
                 { name: 'Semifinali', matches: Array(2).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
                 { name: 'Finale', matches: Array(1).fill(null).map(() => ({ t1: null, t2: null, winner: null })) },
-                { name: 'Campione', winner: null } // Contiene solo il vincitore finale del torneo
+                { name: 'Campione', winner: null }
             ],
-            predictions: INITIAL_PREDICTIONS, // Mappa indexTurno -> Array di oggetti predizione per ogni match
-            favorites: INITIAL_FAVORITES       // Mappa indexTurno -> Oggetto con preferita per giocatore
+            predictions: INITIAL_PREDICTIONS,
+            favorites: INITIAL_FAVORITES
         };
 
-        // Caricamento dati da localStorage se esistenti
-        function loadState() {
-            const saved = localStorage.getItem('mondiali_prediction_state');
-            if (saved) {
-                try {
-                    state = JSON.parse(saved);
-                } catch(e) {
-                    console.error("Errore nel parsing della cache, uso lo stato iniziale.");
+        // Scarica lo stato globale centralizzato da GitHub
+        async function fetchStateFromGitHub() {
+            try {
+                // Il timestamp evita la cache del browser forzando lo scaricamento dei dati in tempo reale
+                const response = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?t=${new Date().getTime()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    FILE_SHA = data.sha; 
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    const parsed = JSON.parse(content);
+                    
+                    // Se il file remoto non è vuoto, sovrascrivi lo stato locale
+                    if (parsed && parsed.rounds) {
+                        state = parsed;
+                    }
                 }
+            } catch (e) {
+                console.error("Impossibile leggere i dati da GitHub, uso i dati di default.", e);
+            }
+            propagateTorneo();
+            renderBracket();
+            renderSidebar();
+        }
+
+        // Invia lo stato aggiornato a GitHub (solo per l'admin)
+        async function pushStateToGitHub() {
+            if (!GITHUB_TOKEN) return alert("Inserisci prima il token!");
+            
+            // Prima di salvare rifacciamo il fetch per aggiornare il FILE_SHA corrente ed evitare conflitti di sovrascrittura
+            await fetchStateFromGitHub();
+
+            const contentStr = JSON.stringify(state, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: "Aggiornamento tabellone e punteggi mondiali",
+                        content: base64Content,
+                        sha: FILE_SHA
+                    })
+                });
+
+                if (response.ok) {
+                    alert("Salvataggio su GitHub completato con successo! I tuoi amici vedranno gli aggiornamenti entro un paio di minuti.");
+                    fetchStateFromGitHub();
+                } else {
+                    const errData = await response.json();
+                    alert("Errore durante il salvataggio: " + errData.message);
+                }
+            } catch (e) {
+                alert("Errore di rete: " + e.message);
             }
         }
 
-        function saveState() {
-            localStorage.setItem('mondiali_prediction_state', JSON.stringify(state));
-        }
-
-        function resetAll() {
-            if(confirm("Sei sicuro di voler resettare tutta la cache del gioco? Perderai ogni dato inserito.")) {
-                localStorage.removeItem('mondiali_prediction_state');
-                window.location.reload();
+        function loginAdmin() {
+            const token = document.getElementById('admin-token').value.trim();
+            if (token) {
+                GITHUB_TOKEN = token;
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('admin-logged').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.body.classList.add('admin-mode');
+                renderBracket();
+                checkRoundCompletion();
             }
         }
 
-        // Calcolo punteggi puntuali e simulazione lungimiranza
         function calculateScores() {
             let scores = { Roberto: 0, Alessio: 0, Emiliano: 0, Fabio: 0 };
             let potentialLungimiranza = { Roberto: {}, Alessio: {}, Emiliano: {}, Fabio: {} };
 
-            // 1) Calcolo Punti Puntuali sui turni passati e corrente
             for (let r = 0; r <= state.currentRoundIndex; r++) {
                 if (r > 4) break;
                 const roundMatches = state.rounds[r].matches;
@@ -339,16 +392,10 @@
                 });
             }
 
-            // 2) Calcolo Lungimiranza (Potenziale/Definitiva)
-            // Troviamo il vincitore effettivo del torneo se esiste (il vincitore della finale)
             const finalMatch = state.rounds[4].matches[0];
             const realWinner = finalMatch ? finalMatch.winner : null;
 
             PLAYERS.forEach(player => {
-                // Per ogni squadra candidata a vincere, calcoliamo la striscia a ritroso a partire dall'ultimo turno disponibile
-                // Generiamo una mappa di punti potenziali per ogni squadra che è ancora in corsa o che ha vinto.
-
-                // Estraggo tutte le squadre distinte che il giocatore ha votato nel corso dei vari turni
                 let votedTeams = new Set();
                 for(let r=0; r<=state.currentRoundIndex; r++) {
                     if(state.favorites[r] && state.favorites[r][player]) {
@@ -357,21 +404,16 @@
                 }
 
                 votedTeams.forEach(team => {
-                    // Verifichiamo la striscia a ritroso per questa specifica squadra
                     let earliestContinuousRound = -1;
-
-                    // Partiamo dal turno corrente (o dall'ultimo turno di voto valido, ossia la Finale [4])
                     let targetStartRound = Math.min(state.currentRoundIndex, 4);
 
-                    // Controlliamo se al turno di partenza ha effettivamente votato questa squadra
                     if (state.favorites[targetStartRound] && state.favorites[targetStartRound][player] === team) {
                         earliestContinuousRound = targetStartRound;
-                        // Scendiamo a ritroso finché la striscia è continua
                         for (let r = targetStartRound - 1; r >= 0; r--) {
                             if (state.favorites[r] && state.favorites[r][player] === team) {
                                 earliestContinuousRound = r;
                             } else {
-                                break; // Striscia interrotta
+                                break;
                             }
                         }
                     }
@@ -387,7 +429,6 @@
             return { scores, potentialLungimiranza, realWinner };
         }
 
-        // Aggiorna la tabella della classifica e i riquadri delle preferite
         function renderSidebar() {
             const { scores, potentialLungimiranza, realWinner } = calculateScores();
             const tbody = document.getElementById('leaderboard-body');
@@ -395,29 +436,22 @@
 
             PLAYERS.forEach(player => {
                 const tr = document.createElement('tr');
-
-                // Costruiamo la stringa dei bonus lungimiranza potenziali o definitivi
-                let lungiText = "-";
                 if (realWinner) {
-                    // Il mondiale è finito, mostriamo il punteggio reale ottenuto
                     const finalBonus = potentialLungimiranza[player][realWinner] || 0;
-                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player] + finalBonus}</strong> <small>(${scores[player]} + ${finalBonus} lung.)</small></td><td>${finalBonus} (Definitivo)</td>`;
+                    tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player] + finalBonus}</strong> <small>(${scores[player]} + ${finalBonus} lung.)</small></td><td>${finalBonus}</td>`;
                 } else {
-                    // Il mondiale è in corso, mostriamo le opzioni potenziali delle squadre ancora in gioco
                     let entries = [];
                     for (let team in potentialLungimiranza[player]) {
-                        // Filtra solo le squadre che non sono ancora state eliminate nel tabellone corrente, se possibile
                         if (potentialLungimiranza[player][team] > 0) {
                             entries.push(`${team}: +${potentialLungimiranza[player][team]}`);
                         }
                     }
-                    lungiText = entries.length > 0 ? entries.join('<br>') : '0';
+                    let lungiText = entries.length > 0 ? entries.join('<br>') : '0';
                     tr.innerHTML = `<td><strong>${player}</strong></td><td><strong>${scores[player]}</strong></td><td><small>${lungiText}</small></td>`;
                 }
                 tbody.appendChild(tr);
             });
 
-            // Renderizza le favorite del turno corrente
             const favDiv = document.getElementById('current-favorites');
             favDiv.innerHTML = '';
             PLAYERS.forEach(player => {
@@ -425,33 +459,23 @@
                 favDiv.innerHTML += `<div><strong>${player}</strong>: ${team}</div>`;
             });
 
-            // Gestione visibilità pannello di configurazione del turno successivo
             checkRoundCompletion();
         }
 
-        // Imposta il vincitore di una partita al click sul tabellone
         function setMatchWinner(roundIndex, matchIndex, teamName) {
-            // Non permettere modifiche a turni passati
+            // Solo chi ha effettuato il login come admin può modificare cliccando sulle celle
+            if (!GITHUB_TOKEN) return; 
             if (roundIndex !== state.currentRoundIndex) return;
             if (!teamName) return;
 
             const match = state.rounds[roundIndex].matches[matchIndex];
+            match.winner = (match.winner === teamName) ? null : teamName;
 
-            if (match.winner === teamName) {
-                // Toggle: se riclicco sulla stessa squadra, annullo la vittoria
-                match.winner = null;
-            } else {
-                match.winner = teamName;
-            }
-
-            // Propaga i cambiamenti a catena sui turni successivi (se tolgo o cambio un vincitore, pulisce le caselle successive)
             propagateTorneo();
-            saveState();
             renderBracket();
             renderSidebar();
         }
 
-        // Propaga i vincitori al turno successivo nell'alberatura dello stato
         function propagateTorneo() {
             for (let r = 0; r < 4; r++) {
                 const currentRoundMatches = state.rounds[r].matches;
@@ -468,53 +492,54 @@
                         nextRoundMatches[targetMatchIndex].t2 = winner;
                     }
 
-                    // Se la squadra precedentemente presente nel turno successivo è cambiata o annullata, resetta il vincente del turno successivo
                     if (!winner) {
                         nextRoundMatches[targetMatchIndex].winner = null;
                     } else {
-                        if (nextRoundMatches[targetMatchIndex].winner !== nextRoundMatches[targetMatchIndex].t1 &&
+                        if (nextRoundMatches[targetMatchIndex].winner !== nextRoundMatches[targetMatchIndex].t1 && 
                             nextRoundMatches[targetMatchIndex].winner !== nextRoundMatches[targetMatchIndex].t2) {
                             nextRoundMatches[targetMatchIndex].winner = null;
                         }
                     }
                 }
             }
-            // Gestione dell'eventuale vincitore assoluto (Campione) oltre la finale
             const finalMatch = state.rounds[4].matches[0];
             state.rounds[5].winner = finalMatch ? finalMatch.winner : null;
         }
 
-        // Controlla se tutte le partite del turno corrente hanno un vincitore per mostrare il form di setup del turno successivo
         function checkRoundCompletion() {
             const currentMatches = state.rounds[state.currentRoundIndex].matches;
             const allResolved = currentMatches.every(m => m.winner !== null);
-
+            
             const formDiv = document.getElementById('next-round-form');
             const msgDiv = document.getElementById('round-status-msg');
 
+            if (!GITHUB_TOKEN) {
+                msgDiv.innerHTML = "Visualizzazione in sola lettura.";
+                formDiv.className = 'hidden';
+                return;
+            }
+
             if (allResolved && state.currentRoundIndex < 4) {
-                msgDiv.classList.add('hidden');
+                msgDiv.className = 'hidden';
                 formDiv.classList.remove('hidden');
                 setupNextRoundForm();
             } else {
-                formDiv.classList.add('hidden');
+                formDiv.className = 'hidden';
                 msgDiv.classList.remove('hidden');
                 if (state.currentRoundIndex === 4 && allResolved) {
-                    msgDiv.innerHTML = "<strong>Mondiale Concluso!</strong> Controlla la classifica definitiva comprensiva dei punti lungimiranza.";
+                    msgDiv.innerHTML = "<strong>Mondiale Concluso!</strong> Premi il tasto arancione in alto per salvare il verdetto finale.";
                 } else {
-                    msgDiv.innerHTML = "Determina tutti i vincitori del turno corrente cliccando direttamente sulle squadre nel tabellone per poter configurare il turno successivo.";
+                    msgDiv.innerHTML = "Scegli tutti i vincitori del turno cliccando sulle squadre nel tabellone, poi compila qui i nuovi pronostici.";
                 }
             }
         }
 
-        // Genera dinamicamente i campi di input (select) per i pronostici e la favorita del turno successivo
         function setupNextRoundForm() {
             const nextRoundIdx = state.currentRoundIndex + 1;
             const nextMatches = state.rounds[nextRoundIdx].matches;
             const fieldsDiv = document.getElementById('form-fields');
-            fieldsDiv.innerHTML = `<h4>Configura Pronostici per: ${ROUND_NAMES[nextRoundIdx]}</h4>`;
+            fieldsDiv.innerHTML = `<h4>Inserisci i Pronostici per: ${ROUND_NAMES[nextRoundIdx]}</h4>`;
 
-            // 1) Generazione select per i pronostici sui passaggi di turno delle partite appena generate
             nextMatches.forEach((match, mIdx) => {
                 const matchBox = document.createElement('div');
                 matchBox.style.marginBottom = '15px';
@@ -536,7 +561,6 @@
                 fieldsDiv.appendChild(matchBox);
             });
 
-            // 2) Generazione select per la scommessa sulla squadra Favorita del nuovo turno
             const favBox = document.createElement('div');
             favBox.style.marginTop = '15px';
             favBox.style.padding = '8px';
@@ -544,7 +568,6 @@
             favBox.style.borderRadius = '4px';
             favBox.innerHTML = `<h4>Eleggi Vincitore Mondiale per il nuovo turno</h4>`;
 
-            // Ricava tutte le squadre ancora attive nel torneo per popolare le opzioni delle favorite
             let activeTeams = [];
             nextMatches.forEach(m => {
                 if(m.t1) activeTeams.push(m.t1);
@@ -554,8 +577,7 @@
             PLAYERS.forEach(player => {
                 const group = document.createElement('div');
                 group.className = 'form-group';
-
-                // Pre-seleziona la favorita del turno precedente se è ancora in corsa
+                
                 const previousFav = state.favorites[state.currentRoundIndex][player];
                 const isStillIn = activeTeams.includes(previousFav);
 
@@ -564,7 +586,7 @@
                     return `<option value="${team}" ${selected}>${team}</option>`;
                 }).join('');
 
-                group.innerHTML = `<label>Favorita Mondiale di ${player}: ${!isStillIn ? '<span style="color:red">(Precedente eliminata!)</span>' : ''}</label>
+                group.innerHTML = `<label>Favorita Mondiale di ${player}: ${!isStillIn ? '<span style="color:red">(Eliminata)</span>' : ''}</label>
                     <select id="fav_${player}">
                         ${optionsHtml}
                     </select>`;
@@ -573,16 +595,13 @@
             fieldsDiv.appendChild(favBox);
         }
 
-        // Salva i dati inseriti nel form amministrativo e avanza ufficialmente di turno
         function saveNextRoundPredictions() {
             const nextRoundIdx = state.currentRoundIndex + 1;
             const nextMatches = state.rounds[nextRoundIdx].matches;
 
-            // Inizializza array predizioni e oggetto favorite per il prossimo turno nello stato
             state.predictions[nextRoundIdx] = [];
             state.favorites[nextRoundIdx] = {};
 
-            // Salva pronostici partite
             nextMatches.forEach((match, mIdx) => {
                 let matchPred = {};
                 PLAYERS.forEach(player => {
@@ -592,26 +611,22 @@
                 state.predictions[nextRoundIdx].push(matchPred);
             });
 
-            // Salva scommessa lungimiranza (favorite)
             PLAYERS.forEach(player => {
                 const selectFav = document.getElementById(`fav_${player}`);
                 state.favorites[nextRoundIdx][player] = selectFav.value;
             });
 
-            // Avanza l'indice del turno corrente
             state.currentRoundIndex = nextRoundIdx;
-
-            saveState();
+            
             renderBracket();
             renderSidebar();
+            alert("Turno avanzato localmente. Ricordati di cliccare sul tasto arancione 'Salva modifiche su GitHub' in alto per pubblicarlo a tutti!");
         }
 
-        // Disegna graficamente l'alberatura ad eliminazione diretta (i 5 turni)
         function renderBracket() {
             const bracketContainer = document.getElementById('bracket');
             bracketContainer.innerHTML = '';
 
-            // Renderizza i 5 turni (dai sedicesimi alla finale)
             for (let r = 0; r < 5; r++) {
                 const roundData = state.rounds[r];
                 const roundDiv = document.createElement('div');
@@ -626,7 +641,6 @@
                     const matchupDiv = document.createElement('div');
                     matchupDiv.className = 'matchup';
 
-                    // Gestione grafiche se le squadre sono presenti o ancora da determinare
                     const team1Name = match.t1 || 'Da determinare';
                     const team2Name = match.t2 || 'Da determinare';
 
@@ -638,7 +652,6 @@
                         if (match.winner === match.t2) { t2Class += ' winner'; t1Class += ' eliminated'; }
                     }
 
-                    // Creazione righe squadre
                     const t1Row = document.createElement('div');
                     t1Row.className = t1Class;
                     t1Row.innerText = team1Name;
@@ -652,16 +665,14 @@
                     matchupDiv.appendChild(t1Row);
                     matchupDiv.appendChild(t2Row);
 
-                    // Mostra i pronostici effettuati dai giocatori sotto il blocco della partita
                     if (state.predictions[r] && state.predictions[r][mIdx]) {
                         const predIndicator = document.createElement('div');
                         predIndicator.className = 'predictions-indicator';
-
+                        
                         let predStrings = [];
                         PLAYERS.forEach(player => {
                             const pPred = state.predictions[r][mIdx][player];
                             if(pPred) {
-                                // Evidenzia in verde o rosso se il turno è già stato marcato con un vincitore
                                 let color = 'inherit';
                                 if (match.winner) {
                                     color = (pPred === match.winner) ? 'var(--success-color)' : 'var(--danger-color)';
@@ -680,13 +691,8 @@
             }
         }
 
-        // Avvio dell'applicazione
         window.onload = function() {
-            loadState();
-            // Assicura la corretta catena ad albero dei vincitori inseriti prima del disegno
-            propagateTorneo();
-            renderBracket();
-            renderSidebar();
+            fetchStateFromGitHub();
         };
     </script>
 </body>
