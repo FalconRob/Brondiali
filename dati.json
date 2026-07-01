@@ -1,1 +1,297 @@
-{}
+{
+  "currentRoundIndex": 0,
+  "rounds": [
+    {
+      "name": "Sedicesimi",
+      "matches": [
+        {
+          "t1": "Germania",
+          "t2": "Paraguay",
+          "winner": "Paraguay"
+        },
+        {
+          "t1": "Francia",
+          "t2": "Svezia",
+          "winner": "Francia"
+        },
+        {
+          "t1": "SudAfrica",
+          "t2": "Canada",
+          "winner": "Canada"
+        },
+        {
+          "t1": "Olanda",
+          "t2": "Marocco",
+          "winner": "Marocco"
+        },
+        {
+          "t1": "Portogallo",
+          "t2": "Croazia",
+          "winner": null
+        },
+        {
+          "t1": "Spagna",
+          "t2": "Austria",
+          "winner": null
+        },
+        {
+          "t1": "USA",
+          "t2": "Bosnia-Erzegovina",
+          "winner": null
+        },
+        {
+          "t1": "Belgio",
+          "t2": "Senegal",
+          "winner": null
+        },
+        {
+          "t1": "Brasile",
+          "t2": "Giappone",
+          "winner": "Brasile"
+        },
+        {
+          "t1": "Costa d'Avorio",
+          "t2": "Norvegia",
+          "winner": "Norvegia"
+        },
+        {
+          "t1": "Messico",
+          "t2": "Ecuador",
+          "winner": "Messico"
+        },
+        {
+          "t1": "Inghilterra",
+          "t2": "Repubblica Democratica del Congo",
+          "winner": null
+        },
+        {
+          "t1": "Argentina",
+          "t2": "Capo Verde",
+          "winner": null
+        },
+        {
+          "t1": "Australia",
+          "t2": "Egitto",
+          "winner": null
+        },
+        {
+          "t1": "Svizzera",
+          "t2": "Algeria",
+          "winner": null
+        },
+        {
+          "t1": "Colombia",
+          "t2": "Ghana",
+          "winner": null
+        }
+      ]
+    },
+    {
+      "name": "Ottavi",
+      "matches": [
+        {
+          "t1": "Paraguay",
+          "t2": "Francia",
+          "winner": null
+        },
+        {
+          "t1": "Canada",
+          "t2": "Marocco",
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": "Brasile",
+          "t2": "Norvegia",
+          "winner": null
+        },
+        {
+          "t1": "Messico",
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        }
+      ]
+    },
+    {
+      "name": "Quarti",
+      "matches": [
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        }
+      ]
+    },
+    {
+      "name": "Semifinali",
+      "matches": [
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        },
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        }
+      ]
+    },
+    {
+      "name": "Finale",
+      "matches": [
+        {
+          "t1": null,
+          "t2": null,
+          "winner": null
+        }
+      ]
+    },
+    {
+      "name": "Campione",
+      "winner": null
+    }
+  ],
+  "predictions": {
+    "0": [
+      {
+        "Roberto": "Germania",
+        "Alessio": "Paraguay",
+        "Emiliano": "Germania",
+        "Fabio": "Germania"
+      },
+      {
+        "Roberto": "Francia",
+        "Alessio": "Francia",
+        "Emiliano": "Francia",
+        "Fabio": "Francia"
+      },
+      {
+        "Roberto": "Canada",
+        "Alessio": "Canada",
+        "Emiliano": "Canada",
+        "Fabio": "Canada"
+      },
+      {
+        "Roberto": "Olanda",
+        "Alessio": "Marocco",
+        "Emiliano": "Marocco",
+        "Fabio": "Olanda"
+      },
+      {
+        "Roberto": "Croazia",
+        "Alessio": "Portogallo",
+        "Emiliano": "Croazia",
+        "Fabio": "Portogallo"
+      },
+      {
+        "Roberto": "Spagna",
+        "Alessio": "Spagna",
+        "Emiliano": "Spagna",
+        "Fabio": "Spagna"
+      },
+      {
+        "Roberto": "Bosnia-Erzegovina",
+        "Alessio": "Bosnia-Erzegovina",
+        "Emiliano": "USA",
+        "Fabio": "USA"
+      },
+      {
+        "Roberto": "Senegal",
+        "Alessio": "Belgio",
+        "Emiliano": "Belgio",
+        "Fabio": "Belgio"
+      },
+      {
+        "Roberto": "Brasile",
+        "Alessio": "Brasile",
+        "Emiliano": "Brasile",
+        "Fabio": "Brasile"
+      },
+      {
+        "Roberto": "Norvegia",
+        "Alessio": "Norvegia",
+        "Emiliano": "Costa d'Avorio",
+        "Fabio": "Norvegia"
+      },
+      {
+        "Roberto": "Messico",
+        "Alessio": "Messico",
+        "Emiliano": "Messico",
+        "Fabio": "Ecuador"
+      },
+      {
+        "Roberto": "Inghilterra",
+        "Alessio": "Repubblica Democratica del Congo",
+        "Emiliano": "Inghilterra",
+        "Fabio": "Inghilterra"
+      },
+      {
+        "Roberto": "Argentina",
+        "Alessio": "Capo Verde",
+        "Emiliano": "Capo Verde",
+        "Fabio": "Argentina"
+      },
+      {
+        "Roberto": "Egitto",
+        "Alessio": "Egitto",
+        "Emiliano": "Egitto",
+        "Fabio": "Australia"
+      },
+      {
+        "Roberto": "Svizzera",
+        "Alessio": "Svizzera",
+        "Emiliano": "Algeria",
+        "Fabio": "Svizzera"
+      },
+      {
+        "Roberto": "Ghana",
+        "Alessio": "Colombia",
+        "Emiliano": "Ghana",
+        "Fabio": "Colombia"
+      }
+    ]
+  },
+  "favorites": {
+    "0": {
+      "Roberto": "Spagna",
+      "Alessio": "Marocco",
+      "Emiliano": "Francia",
+      "Fabio": "Argentina"
+    }
+  }
+}
