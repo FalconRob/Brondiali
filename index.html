@@ -393,7 +393,25 @@
 
         async function pushStateToGitHub() {
             if (!GITHUB_TOKEN) return alert("Attiva prima la modalità amministratore!");
-            await fetchStateFromGitHub();
+            
+            // Forza il recupero dello SHA in tempo reale direttamente dall'API prima di tentare il salvataggio
+            try {
+                const resSha = await fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?t=${new Date().getTime()}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                if (resSha.ok) {
+                    const dataSha = await resSha.json();
+                    FILE_SHA = dataSha.sha; // Sovrascrive lo SHA locale con quello fresco del server
+                } else {
+                    alert("Impossibile recuperare lo SHA corrente da GitHub. Controlla la configurazione.");
+                    return;
+                }
+            } catch (e) {
+                alert("Errore di rete durante il recupero dello SHA: " + e.message);
+                return;
+            }
+
+            // Prepara il contenuto aggiornato dello stato
             const contentStr = JSON.stringify(state, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
 
@@ -407,19 +425,20 @@
                     body: JSON.stringify({
                         message: "Aggiornamento risultati mondiali",
                         content: base64Content,
-                        sha: FILE_SHA
+                        sha: FILE_SHA // Invia lo SHA validato in tempo reale
                     })
                 });
 
                 if (response.ok) {
-                    alert("Salvataggio completato!");
+                    alert("Salvataggio completato con successo! Il file dati.json è stato modificato.");
+                    // Sincronizza lo stato locale dopo il salvataggio positivo
                     fetchStateFromGitHub();
                 } else {
                     const errData = await response.json();
-                    alert("Errore: " + errData.message);
+                    alert("Errore durante la scrittura del file: " + errData.message);
                 }
             } catch (e) {
-                alert("Errore di rete: " + e.message);
+                alert("Errore di rete durante il salvataggio: " + e.message);
             }
         }
 
