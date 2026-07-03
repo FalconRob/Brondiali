@@ -27,12 +27,12 @@
         {
           "t1": "Portogallo",
           "t2": "Croazia",
-          "winner": null
+          "winner": "Portogallo"
         },
         {
           "t1": "Spagna",
           "t2": "Austria",
-          "winner": null
+          "winner": "Spagna"
         },
         {
           "t1": "USA",
@@ -77,7 +77,7 @@
         {
           "t1": "Svizzera",
           "t2": "Algeria",
-          "winner": null
+          "winner": "Svizzera"
         },
         {
           "t1": "Colombia",
@@ -100,8 +100,8 @@
           "winner": null
         },
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Portogallo",
+          "t2": "Spagna",
           "winner": null
         },
         {
@@ -125,7 +125,7 @@
           "winner": null
         },
         {
-          "t1": null,
+          "t1": "Svizzera",
           "t2": null,
           "winner": null
         }
