@@ -1,5 +1,5 @@
 {
-  "currentRoundIndex": 0,
+  "currentRoundIndex": 1,
   "rounds": [
     {
       "name": "Sedicesimi",
@@ -284,10 +284,66 @@
         "Emiliano": "Ghana",
         "Fabio": "Colombia"
       }
+    ],
+    "1": [
+      {
+        "Roberto": "Francia",
+        "Alessio": "Francia",
+        "Emiliano": "Francia",
+        "Fabio": "Francia"
+      },
+      {
+        "Roberto": "Marocco",
+        "Alessio": "Marocco",
+        "Emiliano": "Canada",
+        "Fabio": "Marocco"
+      },
+      {
+        "Roberto": "Spagna",
+        "Alessio": "Spagna",
+        "Emiliano": "Spagna",
+        "Fabio": "Spagna"
+      },
+      {
+        "Roberto": "Belgio",
+        "Alessio": "Belgio",
+        "Emiliano": "USA",
+        "Fabio": "USA"
+      },
+      {
+        "Roberto": "Norvegia",
+        "Alessio": "Brasile",
+        "Emiliano": "Brasile",
+        "Fabio": "Brasile"
+      },
+      {
+        "Roberto": "Inghilterra",
+        "Alessio": "Messico",
+        "Emiliano": "Inghilterra",
+        "Fabio": "Inghilterra"
+      },
+      {
+        "Roberto": "Argentina",
+        "Alessio": "Egitto",
+        "Emiliano": "Egitto",
+        "Fabio": "Argentina"
+      },
+      {
+        "Roberto": "Svizzera",
+        "Alessio": "Colombia",
+        "Emiliano": "Colombia",
+        "Fabio": "Colombia"
+      }
     ]
   },
   "favorites": {
     "0": {
+      "Roberto": "Spagna",
+      "Alessio": "Marocco",
+      "Emiliano": "Francia",
+      "Fabio": "Argentina"
+    },
+    "1": {
       "Roberto": "Spagna",
       "Alessio": "Marocco",
       "Emiliano": "Francia",
