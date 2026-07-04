@@ -67,12 +67,12 @@
         {
           "t1": "Argentina",
           "t2": "Capo Verde",
-          "winner": null
+          "winner": "Argentina"
         },
         {
           "t1": "Australia",
           "t2": "Egitto",
-          "winner": null
+          "winner": "Egitto"
         },
         {
           "t1": "Svizzera",
@@ -82,7 +82,7 @@
         {
           "t1": "Colombia",
           "t2": "Ghana",
-          "winner": null
+          "winner": "Colombia"
         }
       ]
     },
@@ -120,13 +120,13 @@
           "winner": null
         },
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Argentina",
+          "t2": "Egitto",
           "winner": null
         },
         {
           "t1": "Svizzera",
-          "t2": null,
+          "t2": "Colombia",
           "winner": null
         }
       ]
