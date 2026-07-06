@@ -92,12 +92,12 @@
         {
           "t1": "Paraguay",
           "t2": "Francia",
-          "winner": null
+          "winner": "Francia"
         },
         {
           "t1": "Canada",
           "t2": "Marocco",
-          "winner": null
+          "winner": "Marocco"
         },
         {
           "t1": "Portogallo",
@@ -112,12 +112,12 @@
         {
           "t1": "Brasile",
           "t2": "Norvegia",
-          "winner": null
+          "winner": "Norvegia"
         },
         {
           "t1": "Messico",
           "t2": "Inghilterra",
-          "winner": null
+          "winner": "Inghilterra"
         },
         {
           "t1": "Argentina",
@@ -135,8 +135,8 @@
       "name": "Quarti",
       "matches": [
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Francia",
+          "t2": "Marocco",
           "winner": null
         },
         {
@@ -145,8 +145,8 @@
           "winner": null
         },
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Norvegia",
+          "t2": "Inghilterra",
           "winner": null
         },
         {
