@@ -102,12 +102,12 @@
         {
           "t1": "Portogallo",
           "t2": "Spagna",
-          "winner": null
+          "winner": "Spagna"
         },
         {
           "t1": "USA",
           "t2": "Belgio",
-          "winner": null
+          "winner": "Belgio"
         },
         {
           "t1": "Brasile",
@@ -140,8 +140,8 @@
           "winner": null
         },
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Spagna",
+          "t2": "Belgio",
           "winner": null
         },
         {
