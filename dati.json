@@ -127,7 +127,7 @@
         {
           "t1": "Svizzera",
           "t2": "Colombia",
-          "winner": null
+          "winner": "Svizzera"
         }
       ]
     },
@@ -151,7 +151,7 @@
         },
         {
           "t1": "Argentina",
-          "t2": null,
+          "t2": "Svizzera",
           "winner": null
         }
       ]
