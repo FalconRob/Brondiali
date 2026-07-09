@@ -1,5 +1,5 @@
 {
-  "currentRoundIndex": 1,
+  "currentRoundIndex": 2,
   "rounds": [
     {
       "name": "Sedicesimi",
@@ -334,6 +334,32 @@
         "Emiliano": "Colombia",
         "Fabio": "Colombia"
       }
+    ],
+    "2": [
+      {
+        "Roberto": "Francia",
+        "Alessio": "Francia",
+        "Emiliano": "Francia",
+        "Fabio": "Francia"
+      },
+      {
+        "Roberto": "Spagna",
+        "Alessio": "Spagna",
+        "Emiliano": "Spagna",
+        "Fabio": "Spagna"
+      },
+      {
+        "Roberto": "Inghilterra",
+        "Alessio": "Inghilterra",
+        "Emiliano": "Inghilterra",
+        "Fabio": "Inghilterra"
+      },
+      {
+        "Roberto": "Argentina",
+        "Alessio": "Svizzera",
+        "Emiliano": "Argentina",
+        "Fabio": "Argentina"
+      }
     ]
   },
   "favorites": {
@@ -346,6 +372,12 @@
     "1": {
       "Roberto": "Spagna",
       "Alessio": "Marocco",
+      "Emiliano": "Francia",
+      "Fabio": "Argentina"
+    },
+    "2": {
+      "Roberto": "Spagna",
+      "Alessio": "Svizzera",
       "Emiliano": "Francia",
       "Fabio": "Argentina"
     }
