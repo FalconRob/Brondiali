@@ -137,7 +137,7 @@
         {
           "t1": "Francia",
           "t2": "Marocco",
-          "winner": null
+          "winner": "Francia"
         },
         {
           "t1": "Spagna",
@@ -160,7 +160,7 @@
       "name": "Semifinali",
       "matches": [
         {
-          "t1": null,
+          "t1": "Francia",
           "t2": null,
           "winner": null
         },
