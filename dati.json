@@ -142,7 +142,7 @@
         {
           "t1": "Spagna",
           "t2": "Belgio",
-          "winner": null
+          "winner": "Spagna"
         },
         {
           "t1": "Norvegia",
@@ -161,7 +161,7 @@
       "matches": [
         {
           "t1": "Francia",
-          "t2": null,
+          "t2": "Spagna",
           "winner": null
         },
         {
