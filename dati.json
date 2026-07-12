@@ -147,12 +147,12 @@
         {
           "t1": "Norvegia",
           "t2": "Inghilterra",
-          "winner": null
+          "winner": "Inghilterra"
         },
         {
           "t1": "Argentina",
           "t2": "Svizzera",
-          "winner": null
+          "winner": "Argentina"
         }
       ]
     },
@@ -165,8 +165,8 @@
           "winner": null
         },
         {
-          "t1": null,
-          "t2": null,
+          "t1": "Inghilterra",
+          "t2": "Argentina",
           "winner": null
         }
       ]
