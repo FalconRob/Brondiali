@@ -1,5 +1,5 @@
 {
-  "currentRoundIndex": 3,
+  "currentRoundIndex": 4,
   "rounds": [
     {
       "name": "Sedicesimi",
@@ -167,7 +167,7 @@
         {
           "t1": "Inghilterra",
           "t2": "Argentina",
-          "winner": null
+          "winner": "Argentina"
         }
       ]
     },
@@ -176,8 +176,8 @@
       "matches": [
         {
           "t1": "Spagna",
-          "t2": null,
-          "winner": null
+          "t2": "Argentina",
+          "winner": "Spagna"
         }
       ]
     },
@@ -374,6 +374,14 @@
         "Emiliano": "Inghilterra",
         "Fabio": "Argentina"
       }
+    ],
+    "4": [
+      {
+        "Roberto": "Spagna",
+        "Alessio": "Spagna",
+        "Emiliano": "Spagna",
+        "Fabio": "Argentina"
+      }
     ]
   },
   "favorites": {
@@ -399,6 +407,12 @@
       "Roberto": "Spagna",
       "Alessio": "Spagna",
       "Emiliano": "Francia",
+      "Fabio": "Argentina"
+    },
+    "4": {
+      "Roberto": "Spagna",
+      "Alessio": "Spagna",
+      "Emiliano": "Spagna",
       "Fabio": "Argentina"
     }
   }
